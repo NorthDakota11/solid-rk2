@@ -14,7 +14,7 @@ endif()
 add_executable(solid_demo
     Patterns/SOLID/Program.cpp
     Patterns/SOLID/SRP.cpp
-    #Patterns/SOLID/OCP.cpp
+    ##Patterns/SOLID/OCP.cpp
     Patterns/SOLID/LSP.cpp
     Patterns/SOLID/ISP.cpp
     Patterns/SOLID/DIP.cpp
@@ -27,7 +27,7 @@ endif()
 install(TARGETS solid_demo RUNTIME DESTINATION bin)
 install(FILES
     Patterns/SOLID/SRP.cpp
-    #Patterns/SOLID/OCP.cpp
+    ##Patterns/SOLID/OCP.cpp
     Patterns/SOLID/LSP.cpp
     Patterns/SOLID/ISP.cpp
     Patterns/SOLID/DIP.cpp
