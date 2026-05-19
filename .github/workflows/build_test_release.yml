@@ -1,0 +1,63 @@
+name: Build, Test, and Release
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake build-essential libgtest-dev
+        cd /usr/src/gtest
+        sudo cmake .
+        sudo make
+        sudo cp lib/libgtest*.a /usr/lib
+
+    - name: Configure CMake
+      run: cmake -B build -DBUILD_TESTS=ON
+
+    - name: Build
+      run: cmake --build build -- -j$(nproc)
+
+    - name: Run tests
+      run: cd build && ctest --output-on-failure
+
+    - name: Package deb
+      run: cd build && cpack -G DEB
+
+    - name: Upload deb artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: solid-patterns-deb
+        path: build/*.deb
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: solid-patterns-deb
+
+    - name: Create Release and upload asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./*.deb
+        tag_name: v1.0.${{ github.run_number }}
+        name: Release v1.0.${{ github.run_number }}
+        body: "Автоматическая сборка из коммита."
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
